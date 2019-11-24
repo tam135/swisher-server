@@ -93,8 +93,8 @@ app.post('/signup', (req, res) => {
             userId = data.user.uid;
             return data.user.getIdToken();
         })
-        .then(token => {
-            token = token;
+        .then((idToken) => {
+            token = idToken;
             const userCredentials = {
                 handle: newUser.handle,
                 email: newUser.email,
@@ -118,6 +118,6 @@ app.post('/signup', (req, res) => {
 
     
 })
-
+// youtube: 1:01:56
 exports.api = functions.https.onRequest(app);
 //eyJhbGciOiJSUzI1NiIsImtpZCI6IjhhMzY5M2YxMzczZjgwYTI1M2NmYmUyMTVkMDJlZTMwNjhmZWJjMzYiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vc3dpc2hlci1jZTcwYiIsImF1ZCI6InN3aXNoZXItY2U3MGIiLCJhdXRoX3RpbWUiOjE1NzQ0ODczMDQsInVzZXJfaWQiOiJ2QzdvYXMyR2xPTkdiRE8zcjVuTEduaURqQzcyIiwic3ViIjoidkM3b2FzMkdsT05HYkRPM3I1bkxHbmlEakM3MiIsImlhdCI6MTU3NDQ4NzMwNCwiZXhwIjoxNTc0NDkwOTA0LCJlbWFpbCI6InVzZXIyQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJlbWFpbCI6WyJ1c2VyMkBnbWFpbC5jb20iXX0sInNpZ25faW5fcHJvdmlkZXIiOiJwYXNzd29yZCJ9fQ.QkPsoh5iUumRy4u3NowTrE4WXqtEnLJbPywsglV2TuUibHTC7bMHa1hE_utNouiJghm0a-baMQO2b7H8TBuf5JvN9eFvsROCBP06Z-7p4VYbNMVt1wvd3lwPJ5AFGNMPI5-LMQdqX6mc7UFo4PxShAIMNlqmaeFEet-nS1nUHSH7x1asrfKNlVeoSzKAevfNhYVq6kQwkOy8PIYd3_R-b4aMzBGTmyau8dk-mZL_VBkyyo1u66rNcUQxqlA17-9nhwqgsthWBnn1tDptsXK13ozu2JZ8xmePX8GehRTPbJKVKyyo24ezuhW_7tkro9uNSKwos0BI-IzvTaRFO1ZR8Q
