@@ -46,17 +46,45 @@ app.get('/swishes', (req, res) => {
       .catch(err => console.error(err));
 })
 
-app.post('/swish', (req, res) => {
+const FBAuth = (req, res, next) => {
+    let idToken;
+    if(req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+        idToken = req.headers.authorization.split('Bearer ')[1];
+    } else {
+        console.error('No token found')
+        return res.status(403).json({ error: 'Unauthorized' })
+    }
+
+    admin.auth().verifyIdToken(idToken)
+        .then(decodedToken => {
+            req.user = decodedToken;
+            console.log(decodedToken);
+            return db.collection('users')
+                .where('userId', '==', req.user.uid)
+                .limit(1)
+                .get()
+        })
+        .then(data => {
+            req.user.handle = data.docs[0].data().handle;
+            return next()
+        })
+        .catch(err => {
+            console.error('Error while verifying token', err);
+            return res.status(403).json(err)
+        })
+}
+
+app.post('/swish', FBAuth, (req, res) => {
     if(req.method !== 'POST') {
         return res.status(400).json({ error: 'Method not allowed' });
     }
   const newSwish = {
       body: req.body.body,
-      userHandle: req.body.userHandle,
+      userHandle: req.user.handle,
       createdAt: new Date().toISOString()
   };
 
-  admin.firestore()
+    db
     .collection('swishes')
     .add(newSwish)
     .then(doc => {
@@ -195,9 +223,7 @@ app.post('/login', (req, res) => {
             } else {
                 return res.status(500).json({ error: err.code })
             }
-            return res.status(500).json({ error: err.code})
         })
 })
-// youtube: 1:01:56
+
 exports.api = functions.https.onRequest(app);
-//eyJhbGciOiJSUzI1NiIsImtpZCI6IjhhMzY5M2YxMzczZjgwYTI1M2NmYmUyMTVkMDJlZTMwNjhmZWJjMzYiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vc3dpc2hlci1jZTcwYiIsImF1ZCI6InN3aXNoZXItY2U3MGIiLCJhdXRoX3RpbWUiOjE1NzQ0ODczMDQsInVzZXJfaWQiOiJ2QzdvYXMyR2xPTkdiRE8zcjVuTEduaURqQzcyIiwic3ViIjoidkM3b2FzMkdsT05HYkRPM3I1bkxHbmlEakM3MiIsImlhdCI6MTU3NDQ4NzMwNCwiZXhwIjoxNTc0NDkwOTA0LCJlbWFpbCI6InVzZXIyQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJlbWFpbCI6WyJ1c2VyMkBnbWFpbC5jb20iXX0sInNpZ25faW5fcHJvdmlkZXIiOiJwYXNzd29yZCJ9fQ.QkPsoh5iUumRy4u3NowTrE4WXqtEnLJbPywsglV2TuUibHTC7bMHa1hE_utNouiJghm0a-baMQO2b7H8TBuf5JvN9eFvsROCBP06Z-7p4VYbNMVt1wvd3lwPJ5AFGNMPI5-LMQdqX6mc7UFo4PxShAIMNlqmaeFEet-nS1nUHSH7x1asrfKNlVeoSzKAevfNhYVq6kQwkOy8PIYd3_R-b4aMzBGTmyau8dk-mZL_VBkyyo1u66rNcUQxqlA17-9nhwqgsthWBnn1tDptsXK13ozu2JZ8xmePX8GehRTPbJKVKyyo24ezuhW_7tkro9uNSKwos0BI-IzvTaRFO1ZR8Q
