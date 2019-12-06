@@ -7,6 +7,14 @@ let db = {
       likeCount: 5,
       commentCount: 2
     }
+  ],
+  comments: [
+    {
+      userHandle: 'user',
+      swishId: 'asdfasdfasdf',
+      body: 'nice one brah',
+      createdAt: '2019-03-15T10:59:52.798Z'
+    }
   ]
 };
 

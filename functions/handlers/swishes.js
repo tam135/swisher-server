@@ -39,3 +39,33 @@ exports.postOneSwish = (req, res) => {
       console.log(err);
     });
 };
+
+exports.getSwish = (req, res) => {
+  let swishData = {};
+  db.doc(`/swishes/${req.params.swishId}`)
+    .get()
+    .then((doc) => {
+      if(!doc.exists) {
+        return res.status(404).json({ error: 'Swish not found' })
+      }
+      swishData = doc.data();
+      swishData.swishId = doc.id;
+      return db
+        .collection('comments')
+        .orderBy('createdAt', 'desc')
+        .where('swishId', '==', req.params.swishId)
+        .get();
+    })
+      .then((data) => {
+        swishData.comments = [];
+        data.forEach((doc) => {
+          swishData.comments.push(doc.data())
+        });
+        return res.json(swishData);
+      })
+      .catch(err => {
+        console.error(err)
+        return res.status(500).json({ error: err.code })
+      });
+}; 
+
