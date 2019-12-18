@@ -40,6 +40,7 @@ exports.postOneSwish = (req, res) => {
     });
 };
 
+// Fetch on swish
 exports.getSwish = (req, res) => {
   let swishData = {};
   db.doc(`/swishes/${req.params.swishId}`)
@@ -69,3 +70,33 @@ exports.getSwish = (req, res) => {
       });
 }; 
 
+// Comment on a swish
+exports.commentOnSwish = (req,res) => {
+  if(req.body.body.trim() === '') {
+    return res.status(400).json({ error: 'Must not be empty' })
+  }
+
+  const newComment = {
+    body: req.body.body,
+    createdAt: new Date().toISOString(),
+    swishId: req.params.swishId,
+    userHandle: req.user.handle,
+    userImage: req.user.imageUrl
+  };
+
+  db.doc(`/swishes/${req.params.swishId}`).get()
+    .then(doc => {
+      if(!doc.exists) {
+        return res.status(404).json({ error: 'Swish not found'})
+      }
+      return db.collection('commments').add(newComment);
+    })
+    .then(() => {
+      res.json(newComment);
+    })
+    .catch(err => {
+      console.log(err)
+      res.status(500).json({ error: 'Something went wrong' });
+    })
+
+}
