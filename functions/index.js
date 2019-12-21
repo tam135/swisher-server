@@ -8,7 +8,8 @@ const {
   getSwish,
   commentOnSwish,
   likeSwish,
-  dislikeSwish 
+  dislikeSwish,
+  deleteSwish 
 } = require("./handlers/swishes");
 const {
   signup,
@@ -26,7 +27,7 @@ app.get('/swishes', getAllSwishes);
 app.post('/swish', FBAuth, postOneSwish);
 app.get('/swish/:swishId', getSwish);
 
-// TODO: delete swish route
+app.delete('/swish/:swishId', FBAuth, deleteSwish)
 app.get('/swish/:swishId/like', FBAuth, likeSwish);
 app.get('/swish/:swishId/dislike', FBAuth, dislikeSwish)
 // TODO: unlike a swish

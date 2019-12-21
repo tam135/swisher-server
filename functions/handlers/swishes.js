@@ -94,6 +94,9 @@ exports.commentOnSwish = (req,res) => {
       if(!doc.exists) {
         return res.status(404).json({ error: 'Swish not found'})
       }
+      return doc.ref.update({ commentCount: doc.data().commentCount + 1})
+    })
+    .then(() => {
       return db.collection('commments').add(newComment);
     })
     .then(() => {
@@ -182,5 +185,28 @@ exports.dislikeSwish = (req, res) => {
     .catch(err => {
       console.log(err)
       res.status(500).json({ error: err.code })
+    })
+}
+
+// Delete a swish
+exports.deleteSwish = (req, res) => {
+  const document = db.doc(`/swishes/${req.params.swishId}`);
+  document.get()
+    .then(doc => {
+      if(!doc.exists) {
+        return res.status(404).json({ error: 'Swish not found'});
+      }
+      if(doc.data().userHandle !== req.user.handle) {
+        return res.status(403).json({ error: 'Unauthorized'});
+      } else {
+        return document.delete();
+      }
+    })
+    .then(() => {
+      res.json({ message: 'Swish deleted successfully'});
+    })
+    .catch(err => {
+      console.error(err)
+      return res.status(500).json({ error: err.code })
     })
 }
