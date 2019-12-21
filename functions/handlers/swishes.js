@@ -26,13 +26,18 @@ exports.postOneSwish = (req, res) => {
   const newSwish = {
     body: req.body.body,
     userHandle: req.user.handle,
-    createdAt: new Date().toISOString()
+    userImage: req.user.imageUrl,
+    createdAt: new Date().toISOString(),
+    likeCount:0,
+    commentcount: 0
   };
 
   db.collection("swishes")
     .add(newSwish)
     .then(doc => {
-      res.json({ message: `document ${doc.id} created successfully` });
+      const resSwish = newSwish;
+      resSwish.swishId = doc.id;
+      res.json(resSwish);
     })
     .catch(err => {
       res.status(500).json({ error: "something went wrong" });
@@ -98,5 +103,47 @@ exports.commentOnSwish = (req,res) => {
       console.log(err)
       res.status(500).json({ error: 'Something went wrong' });
     })
-
 }
+
+// Like a swish
+exports.likeSwish = (req,res) => {
+  const likeDocument = db.collection('likes').where('userHandle', '==', req.user.handle)
+    .where('swishId', '==', req.params.swishId).limit(1)
+  
+  const swishDocument = db.doc(`/swishes/${req.params.swishId}`);
+
+  let swishData;
+
+  swishDocument.get()
+    .then(doc => {
+      if(doc.exists) {
+        swishData = doc.data();
+        swishData.swishId = doc.id;
+        return likeDocument.get();
+      } else {
+        return res.status(404).json({ error: 'Swish not foudn' })
+      }
+    })
+    .then(data => {
+      if(data.empty) {
+        return db.collection('likes').add({
+          swishId: req.params.swishId,
+          userHandle: req.user.handle
+        })
+        .then(() => {
+          swishData.likeCount++
+          return swishDocument.update({ likeCount: swishData.likeCount})
+        })
+        .then(() => {
+          return res.json(swishData);
+        })
+      } else {
+        return res.status(400).json({ error: 'Swish already liked' })
+      }
+    })
+    .catch(err => {
+      console.log(err)
+      res.status(500).json({ error: err.code })
+    })
+}
+
