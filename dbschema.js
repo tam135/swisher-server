@@ -15,6 +15,16 @@ let db = {
       body: 'nice one brah',
       createdAt: '2019-03-15T10:59:52.798Z'
     }
+  ],
+  notifications: [
+    {
+      recipient: 'user',
+      sender: 'john',
+      read: 'true | false',
+      swishId: 'asdfasdfasdf',
+      type: 'like | comment',
+      createdAt: '2019-03-15T10:59:52.798Z'
+    }
   ]
 };
 
