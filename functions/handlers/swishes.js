@@ -147,3 +147,40 @@ exports.likeSwish = (req,res) => {
     })
 }
 
+exports.unlikeSwish = (req, res) => {
+  const likeDocument = db.collection('likes').where('userHandle', '==', req.user.handle)
+    .where('swishId', '==', req.params.swishId).limit(1)
+
+  const swishDocument = db.doc(`/swishes/${req.params.swishId}`);
+
+  let swishData;
+
+  swishDocument.get()
+    .then(doc => {
+      if (doc.exists) {
+        swishData = doc.data();
+        swishData.swishId = doc.id;
+        return likeDocument.get();
+      } else {
+        return res.status(404).json({ error: 'Swish not foudn' })
+      }
+    })
+    .then(data => {
+      if (data.empty) {
+        return res.status(400).json({ error: 'Swish not liked' })
+      } else {
+        return db.doc(`/likes/${data.docs[0].data().id}`).delete()
+          .then(() => {
+            swishData.likeCount--;
+            return swishDocument.update({ likeCount: swishData.likeCount});
+          })
+          .then(() => {
+            res.json(swishData)
+          })
+      }
+    })
+    .catch(err => {
+      console.log(err)
+      res.status(500).json({ error: err.code })
+    })
+}
