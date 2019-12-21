@@ -28,7 +28,7 @@ app.get('/swish/:swishId', getSwish);
 
 // TODO: delete swish route
 app.get('/swish/:swishId/like', FBAuth, likeSwish);
-// app.get('/swish/:swishId/dislike', FBAuth, dislikeSwish)
+app.get('/swish/:swishId/dislike', FBAuth, dislikeSwish)
 // TODO: unlike a swish
 app.post('/swish/:swishId/comment', FBAuth, commentOnSwish)
 

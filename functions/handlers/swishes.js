@@ -147,7 +147,7 @@ exports.likeSwish = (req,res) => {
     })
 }
 
-exports.unlikeSwish = (req, res) => {
+exports.dislikeSwish = (req, res) => {
   const likeDocument = db.collection('likes').where('userHandle', '==', req.user.handle)
     .where('swishId', '==', req.params.swishId).limit(1)
 
@@ -169,7 +169,7 @@ exports.unlikeSwish = (req, res) => {
       if (data.empty) {
         return res.status(400).json({ error: 'Swish not liked' })
       } else {
-        return db.doc(`/likes/${data.docs[0].data().id}`).delete()
+        return db.doc(`/likes/${data.docs[0].id}`).delete()
           .then(() => {
             swishData.likeCount--;
             return swishDocument.update({ likeCount: swishData.likeCount});
