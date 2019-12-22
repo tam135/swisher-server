@@ -110,26 +110,32 @@ exports.commentOnSwish = (req,res) => {
 
 // Like a swish
 exports.likeSwish = (req,res) => {
-  const likeDocument = db.collection('likes').where('userHandle', '==', req.user.handle)
-    .where('swishId', '==', req.params.swishId).limit(1)
+  const likeDocument = db
+    .collection('likes')
+    .where('userHandle', '==', req.user.handle)
+    .where('swishId', '==', req.params.swishId)
+    .limit(1)
   
   const swishDocument = db.doc(`/swishes/${req.params.swishId}`);
 
   let swishData;
 
-  swishDocument.get()
+  swishDocument
+    .get()
     .then(doc => {
       if(doc.exists) {
         swishData = doc.data();
         swishData.swishId = doc.id;
         return likeDocument.get();
       } else {
-        return res.status(404).json({ error: 'Swish not foudn' })
+        return res.status(404).json({ error: 'Swish not found' })
       }
     })
     .then(data => {
       if(data.empty) {
-        return db.collection('likes').add({
+        return db
+        .collection('likes')
+        .add({
           swishId: req.params.swishId,
           userHandle: req.user.handle
         })
@@ -210,3 +216,4 @@ exports.deleteSwish = (req, res) => {
       return res.status(500).json({ error: err.code })
     })
 }
+
