@@ -84,13 +84,16 @@ exports.deleteNotificationOnDislike = functions
 
 exports.createNotificationOnComment = functions
   .region('us-east1')
-  .firestore.document('commments/${id}')
+  .firestore.document('comments/{id}')
   .onCreate((snapshot) => {
     return db
-      .doc(`/swishes/${snapshot.data().swishId}`)
+      .doc(`/swish/${snapshot.data().swishId}`)
       .get()
-      .then(doc => {
-        if (doc.exists) {
+      .then((doc) => {
+        if (
+          doc.exists &&
+          doc.data().userHandle !== snapshot.data().userHandle
+        ) {
           return db.doc(`/notifications/${snapshot.id}`).set({
             createdAt: new Date().toISOString(),
             recipient: doc.data().userHandle,
@@ -98,12 +101,12 @@ exports.createNotificationOnComment = functions
             type: 'comment',
             read: false,
             swishId: doc.id
-          })
+          });
         }
       })
-      .catch(err => {
-        console.error(err)
+      .catch((err) => {
+        console.error(err);
         return;
-      })
+      });
   });
 
