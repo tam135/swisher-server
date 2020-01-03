@@ -88,7 +88,7 @@ exports.createNotificationOnComment = functions
   .firestore.document('comments/{id}')
   .onCreate((snapshot) => {
     return db
-      .doc(`/swishes/${snapshot.data().swishId}`)
+      .doc(`/swishes/${snapshot.data().userHandle}`)
       .get()
       .then((doc) => {
         if (
@@ -107,7 +107,6 @@ exports.createNotificationOnComment = functions
       })
       .catch((err) => {
         console.error(err);
-        return;
       });
   });
 
