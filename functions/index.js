@@ -88,7 +88,7 @@ exports.createNotificationOnComment = functions
   .firestore.document('comments/{id}')
   .onCreate((snapshot) => {
     return db
-      .doc(`/swishes/${snapshot.data().userHandle}`)
+      .doc(`/swishes/${snapshot.data().screamId}`)
       .get()
       .then((doc) => {
         if (
@@ -101,12 +101,13 @@ exports.createNotificationOnComment = functions
             sender: snapshot.data().userHandle,
             type: 'comment',
             read: false,
-            swishId: doc.id
+            screamId: doc.id
           });
         }
       })
       .catch((err) => {
         console.error(err);
+        return;
       });
   });
 
