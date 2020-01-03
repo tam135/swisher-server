@@ -77,8 +77,6 @@ exports.login = (req, res) => {
     return res.status(400).json(errors);
   }
 
-  
-
   firebase
     .auth()
     .signInWithEmailAndPassword(user.email, user.password)

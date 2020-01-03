@@ -32,7 +32,6 @@ app.get('/swish/:swishId', getSwish);
 app.delete('/swish/:swishId', FBAuth, deleteSwish)
 app.get('/swish/:swishId/like', FBAuth, likeSwish);
 app.get('/swish/:swishId/dislike', FBAuth, dislikeSwish)
-// TODO: unlike a swish
 app.post('/swish/:swishId/comment', FBAuth, commentOnSwish)
 
 // Users routes
@@ -53,8 +52,11 @@ exports.createNotificationOnLike = functions
       .doc(`/swishes/${snapshot.data().swishId}`)
       .get()
       .then(doc => {
-        if(doc.exists) {
-          return db.doc(`/notifications/${snapshot.get.id}`).set({
+        if(
+          doc.exists &&
+          doc.data().userHandle !== snapshot.data().userHandle
+          ) {
+          return db.doc(`/notifications/${snapshot.id}`).set({
             createdAt: new Date().toISOString(),
             recipient: doc.data().userHandle,
             sender: snapshot.data().userHandle,
@@ -66,7 +68,6 @@ exports.createNotificationOnLike = functions
       })
       .catch(err => {
         console.error(err)
-        return;
       })
   });
 exports.deleteNotificationOnDislike = functions
@@ -87,7 +88,7 @@ exports.createNotificationOnComment = functions
   .firestore.document('comments/{id}')
   .onCreate((snapshot) => {
     return db
-      .doc(`/swish/${snapshot.data().swishId}`)
+      .doc(`/swishes/${snapshot.data().swishId}`)
       .get()
       .then((doc) => {
         if (
