@@ -11,7 +11,8 @@ exports.getAllSwishes = (req, res) => {
           swishId: doc.id,
           body: doc.data().body,
           userHandle: doc.data().userHandle,
-          createdAt: doc.data().createdAt
+          createdAt: doc.data().createdAt,
+          userImage: doc.data().userImage
         });
       });
       return res.json(swishes);
@@ -88,6 +89,7 @@ exports.commentOnSwish = (req,res) => {
     userHandle: req.user.handle,
     userImage: req.user.imageUrl
   };
+  console.log(newComment);
 
   db.doc(`/swishes/${req.params.swishId}`)
     .get()
