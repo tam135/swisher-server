@@ -29,7 +29,7 @@ exports.postOneSwish = (req, res) => {
     userImage: req.user.imageUrl,
     createdAt: new Date().toISOString(),
     likeCount:0,
-    commentcount: 0
+    commentCount: 0
   };
 
   db.collection("swishes")
@@ -78,7 +78,7 @@ exports.getSwish = (req, res) => {
 // Comment on a swish
 exports.commentOnSwish = (req,res) => {
   if(req.body.body.trim() === '') {
-    return res.status(400).json({ error: 'Must not be empty' })
+    return res.status(400).json({ comment: 'Must not be empty' })
   }
 
   const newComment = {
@@ -89,8 +89,9 @@ exports.commentOnSwish = (req,res) => {
     userImage: req.user.imageUrl
   };
 
-  db.doc(`/swishes/${req.params.swishId}`).get()
-    .then(doc => {
+  db.doc(`/swishes/${req.params.swishId}`)
+    .get()
+    .then((doc) => {
       if(!doc.exists) {
         return res.status(404).json({ error: 'Swish not found'})
       }

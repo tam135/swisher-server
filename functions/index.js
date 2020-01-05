@@ -19,6 +19,8 @@ const {
   uploadImage,
   addUserDetails,
   getAuthenticatedUser,
+  getUserDetails,
+  //markNotificationsRead
 
 } = require("./handlers/users");
 
@@ -40,9 +42,11 @@ app.post('/login', login);
 app.post('/user/image', FBAuth, uploadImage);
 app.post('/user', FBAuth, addUserDetails);
 app.get('/user', FBAuth, getAuthenticatedUser);
+app.get('/user/:handle', getUserDetails)
+//app.post('/notifications', FBAuth, markNotificationsRead)
+//3:44:44
 
-
-exports.api = functions.https.onRequest(app);
+exports.api = functions.region('us-east1').https.onRequest(app);
 
 exports.createNotificationOnLike = functions
   .region('us-east1')
@@ -82,15 +86,15 @@ exports.deleteNotificationOnDislike = functions
         return;
       });
   })
-
+//3:38:47
 exports.createNotificationOnComment = functions
-  .region('us-east1')
-  .firestore.document('comments/{id}')
-  .onCreate((snapshot) => {
+  .region("us-east1")
+  .firestore.document("comments/{id}")
+  .onCreate(snapshot => {
     return db
-      .doc(`/swishes/${snapshot.data().screamId}`)
+      .doc(`/swishes/${snapshot.data().swishId}`)
       .get()
-      .then((doc) => {
+      .then(doc => {
         if (
           doc.exists &&
           doc.data().userHandle !== snapshot.data().userHandle
@@ -99,13 +103,13 @@ exports.createNotificationOnComment = functions
             createdAt: new Date().toISOString(),
             recipient: doc.data().userHandle,
             sender: snapshot.data().userHandle,
-            type: 'comment',
+            type: "comment",
             read: false,
-            screamId: doc.id
+            swishId: doc.id
           });
         }
       })
-      .catch((err) => {
+      .catch(err => {
         console.error(err);
         return;
       });
