@@ -114,7 +114,7 @@ exports.createNotificationsOnComment = functions
 
 exports.onUserImageChange = functions
   .region('us-east1')
-  .firestore.document('/users/{userId')
+  .firestore.document('/users/{userId}')
   .onUpdate((change) => {
     console.log(change.before.data());
     console.log(change.after.data());
@@ -132,5 +132,40 @@ exports.onUserImageChange = functions
           });
           return batch.commit();
         });
-    }
+    } else return true;
   })
+
+exports.onSwishDelete = functions
+  .region("us-east1")
+  .firestore.document("/swishes/{swishId}")
+  .onDelete((snapshot, context) => {
+    const swishId = context.params.swishId;
+    const batch = db.batch();
+    return db
+      .collection("comments")
+      .where("swishId", "==", swishId)
+      .get()
+      .then(data => {
+        data.forEach(doc => {
+          batch.delete(db.doc(`/comments/${doc.id}`));
+        });
+        return db.collection("likes").where("swishId", "==", swishId).get();
+      })
+      .then(data => {
+        data.forEach(doc => {
+          batch.delete(db.doc(`/likes/${doc.id}`));
+        });
+        return db.collection("notifications").where("swishId", "==", swishId).get();
+      })
+      .then(data => {
+        data.forEach(doc => {
+          batch.delete(db.doc(`/notifications/${doc.id}`));
+        });
+        return batch.commit();
+      })
+      .catch(err => console.error(err))
+  })
+
+
+
+
