@@ -2,6 +2,8 @@ const express = require("express");
 const app = express();
 const functions = require('firebase-functions');
 
+const cors = require("cors");
+app.use(cors());
 const { db } = require('./util/admin');
 
 const { 
